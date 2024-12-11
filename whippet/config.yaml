@@ -1,0 +1,30 @@
+samples:
+    # sample names: path to the fastq files, omitting fastq suffix
+    SP_1: /usr/users/yzhu1/www/0vF36w1M7UjV/HMGB2/Data/Fastq/SP_1  
+    SP_2: /usr/users/yzhu1/www/0vF36w1M7UjV/HMGB2/Data/Fastq/SP_2
+    CTCFcontrol_Rep1: /usr/users/yzhu1/www/0vF36w1M7UjV/HMGB2/Data/Fastq/p1522scontrol1_Papantonis_S93
+    CTCFcontrol_Rep2: /usr/users/yzhu1/www/0vF36w1M7UjV/HMGB2/Data/Fastq/p1522scontrol2_Papantonis_S95
+
+fastq_suffix:
+    # suffix of the fastq files; do not forget ":"
+    _R1_001.fastq.gz:
+    _R2_001.fastq.gz:
+
+control:
+    # prefix of the bam files of the control groups; do not forget ":"
+    SP_1:
+    SP_2:
+
+treatment:
+    # prefix of the bam files of the treatment groups
+    CTCFcontrol_Rep1:
+    CTCFcontrol_Rep2:
+
+conditions:
+    # conditions for comparison
+    SP:
+    CTCFcontrol:
+
+params:
+    il: /usr/users/yzhu1/www/0vF36w1M7UjV/HMGB2/Analysis/01_Align/  # path to the bam files
+    ol: /usr/users/yzhu1/www/0vF36w1M7UjV/HMGB2/Analysis/04_Whippet/ICM_CTCF_control/  # path for the output

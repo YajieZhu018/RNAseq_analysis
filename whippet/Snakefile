@@ -1,0 +1,80 @@
+fl="/usr/users/yzhu1/www/0vF36w1M7UjV/Basic_scripts/whippet/"
+configfile: "config.yaml"
+il=config["params"]["il"]
+ol=config["params"]["ol"]
+fastq_suffix1,fastq_suffix2=config["fastq_suffix"]
+
+rule all:
+    input:
+        "%s04_diff/KO_vs_WT.sig.diff.txt" % ol
+
+def get_fastqs(wildcards, fastq_suffix1=fastq_suffix1, fastq_suffix2=fastq_suffix2):
+    return config["samples"][wildcards.sample] + fastq_suffix1, config["samples"][wildcards.sample] + fastq_suffix2
+        
+rule merge_bam:
+    input:
+       expand("%s{sample}/Aligned.sortedByCoord.out.bam" % il, sample=config["samples"]),
+    output:
+        merged="%s01_align/merged.bam" % ol,
+        sorted="%s01_align/merged.sorted.bam" % ol,
+        rmdup="%s01_align/merged.sorted.rmdup.bam" % ol
+       #"%s01_align/EJC.sorted.rmdup.bam.bai" % ol
+    resources:
+        mem_gb=32,
+        runtime_min=600
+    threads:
+        8
+    shell:
+        """
+        module load samtools
+        samtools merge -@ {threads} {output.merged} {input}
+        samtools sort -@ {threads} -o {output.sorted} {output.merged}
+        samtools rmdup -S {output.sorted} {output.rmdup}
+        samtools index -@ {threads} {output.rmdup}
+        """
+        
+rule generate_index:
+    input:
+        "%s01_align/merged.sorted.rmdup.bam" % ol
+    output:
+        "%s02_index/hg38.jls" % ol
+    resources:
+        mem_gb=32,
+        runtime_min=600
+    log:
+        "%slogs/02_index.log" % ol
+    shell:
+        "bash {fl}02_index.sh {input} {output} 2> {log}"
+        
+rule quant:
+    input:
+        #"%s{sample}" % il_fastq,
+        fastq=get_fastqs,
+        index="%s02_index/hg38.jls" % ol
+    output:
+        "%s03_quant/{sample}.psi.gz" % ol
+    #conda:
+        #"my_root1.yml"
+    log:
+        "%slogs/03_quant_{sample}.log" % ol
+    resources:
+        mem="32000mb",
+        runtime="10h"
+    #params: runtime="10h"
+    #cluster:
+        #"sbatch --mem={resources.mem_mb} --time={resources.time}"
+    shell:
+        "bash {fl}03_quant.sh {input.fastq} {input.index} {output} 2> {log}"
+        
+rule delta:
+    input:
+        ctrl=expand("%s03_quant/{sample}.psi.gz" % ol, sample=config["control"]),
+        trt=expand("%s03_quant/{sample}.psi.gz" % ol, sample=config["treatment"]),
+    output:
+        "%s04_diff/KO_vs_WT.sig.diff.txt" % ol
+    #params:
+        #"%s04_diff/KO_vs_WT" % ol
+    log:
+        "%slogs/04_delta.log" % ol
+    shell:
+        "bash {fl}04_delta.sh {input.ctrl} {input.trt} {output} 2> {log}"
