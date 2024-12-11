@@ -2,8 +2,6 @@
 ## desep2
 Scripts for analyzing differential gene expression, including quality control of fastq files, star mapping, htseq counting, ruvseq normalization and deseq2.
 
-Basic rules:
-
 Run the python files to write input, output path, and other parameters in text files before submitting the corresponding .sbatch file.
 ```bash
 python run*.py
@@ -26,8 +24,6 @@ See more info about the deseq2 package: https://bioconductor.org/packages/releas
 
 ## whippet
 Scripts for analyzing RNA splicing, wrapped with snakemake
-
-Basic rules:
 
 Modify config.yaml
 
